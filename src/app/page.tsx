@@ -84,8 +84,18 @@ export default function Home() {
                 variant: "subtle", // Change this to any valid variant
             });
             const txHash = await handleTransfer("CACAO", parseFloat(amountToSend), destination);
-
+            // make a toast with a copyable txHash
+            console.log("Transaction sent:", txHash);
             setIsSendFormVisible(false); // Close the send form upon successful send
+            toast({
+                title: "Transaction hash:",
+                description: ` ${txHash}`,
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom-left", // Change this to any valid position
+                variant: "subtle", // Change this to any valid variant
+            });
         } catch (error) {
             console.error("Error initiating transfer:", error);
         }

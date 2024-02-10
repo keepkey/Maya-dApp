@@ -6,12 +6,9 @@ import { AssetValue } from '@coinmasters/core';
 
 export function useHandleTransfer(keepkeyInstance: any) {
     const handleTransfer = async (asset: string, amount: number, destination: string) => {
-        console.log("handleTransfer: ", asset, amount, destination);
-        console.log("keepkeyInstance: ", keepkeyInstance);
-        console.log("asset: ", asset, "amount: ", amount, "destination: ", destination);
+
         if (!asset || !amount) return;
-        console.log(keepkeyInstance)
-        console.log("Available keys in keepKey:", Object.keys(keepkeyInstance));
+
 
         if (asset === "CACAO" && keepkeyInstance.MAYA.walletMethods) {
             console.log(keepkeyInstance.MAYA.walletMethods)
@@ -31,8 +28,7 @@ export function useHandleTransfer(keepkeyInstance: any) {
                 };
 
                 const txHash = await keepkeyInstance.MAYA.walletMethods.transfer(sendPayload);
-                console.log("txHash: ", 'https://www.mayascan.org/tx/' + String(txHash.txid));
-                console.log("Transfer successful");
+
                 return txHash; // Optionally return transaction hash or result
             } catch (error) {
                 console.error("Transfer failed", error);

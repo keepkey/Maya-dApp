@@ -5,7 +5,7 @@ import {
     Button,
     Image,
     Spinner,
-    VStack,
+    HStack,
 } from '@chakra-ui/react';
 
 import { useState } from "react";
@@ -148,11 +148,11 @@ export default function Wallet({ setKeepKey, keepkey }: any) {
 
     return (
         <div>
-            <VStack>
+            <HStack>
                 <Image
                     src={"https://pbs.twimg.com/profile_images/1610392637814759424/MPu7ZSLt_400x400.jpg"}
                     alt={"KeepKey Logo"}
-                    boxSize={"100px"}
+                    boxSize={"50px"}
                     borderRadius={"100%"}
                 />
                 <Button
@@ -167,7 +167,7 @@ export default function Wallet({ setKeepKey, keepkey }: any) {
 
                 {isLoaded ? <Spinner size="48px" /> : null}
                 <br />
-            </VStack>
+            </HStack>
 
         </div>
     );
