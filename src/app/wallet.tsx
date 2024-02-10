@@ -8,11 +8,11 @@ import {
     VStack,
 } from '@chakra-ui/react';
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 //@ts-ignore
 import { getPaths } from "@pioneer-platform/pioneer-coins"; // Corrected import to use the new hook
 //@ts-ignore
-import { ChainToNetworkId, getChainEnumValue, availableChainsByWallet, WalletOption } from '@coinmasters/types';
+import { ChainToNetworkId, getChainEnumValue } from '@coinmasters/types';
 
 
 interface KeepKeyWallet {

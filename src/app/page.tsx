@@ -1,13 +1,12 @@
 "use client";
-import { Tooltip, Box, Text, HStack, VStack, Spinner, Center, Button, Flex, useDisclosure, Modal, ModalBody, ModalOverlay, ModalHeader, ModalContent, ModalCloseButton, Input, ModalFooter } from "@chakra-ui/react";
+import { Box, Text, HStack, VStack, Center, Button, Flex, Input } from "@chakra-ui/react";
 import Image from "next/image";
 import styles from "./page.module.css";
 import Wallet from "./wallet";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { formatCacao } from "@/utils/formatBigInt";
 import { useHandleTransfer } from './hooks/useHandleTransfer'; // Adjust the path as needed
 import { FaCopy, FaLock } from 'react-icons/fa';
-import { AnyNsRecord } from "dns";
 import { useToast } from "@chakra-ui/react";
 // import chakra provider 
 import { ChakraProvider } from "@chakra-ui/react";
