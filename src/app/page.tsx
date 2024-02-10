@@ -72,10 +72,19 @@ export default function Home() {
         );
     }
 
-
     const onClickSend = async () => {
         try {
+            toast({
+                title: "Look at your KeepKey to confirm the transaction",
+                description: "Confirm transaction",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom-left", // Change this to any valid position
+                variant: "subtle", // Change this to any valid variant
+            });
             const txHash = await handleTransfer("CACAO", parseFloat(amountToSend), destination);
+
             setIsSendFormVisible(false); // Close the send form upon successful send
         } catch (error) {
             console.error("Error initiating transfer:", error);
@@ -96,8 +105,6 @@ export default function Home() {
             variant: "subtle", // Change this to any valid variant
         });
     }
-
-
 
     // Test Wallet : maya1g9el7lzjwh9yun2c4jjzhy09j98vkhfxfqkl5k
 
