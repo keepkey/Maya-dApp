@@ -98,8 +98,8 @@ export default function Wallet({ setKeepKey, keepkey }: any) {
             let keepkeyConfig = {
                 apiKey: localStorage.getItem('keepkeyApiKey') || '123',
                 pairingInfo: {
-                    name: "int-test-package",
-                    imageUrl: "",
+                    name: "Chaac Wallet",
+                    imageUrl: "https://i.pinimg.com/originals/24/77/56/247756ac928c5f60fc786aef33485f17.jpg",
                     basePath: 'http://localhost:1646/spec/swagger.json',
                     url: 'http://localhost:1646',
                 }

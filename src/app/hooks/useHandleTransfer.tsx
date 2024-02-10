@@ -26,7 +26,7 @@ export function useHandleTransfer(keepkeyInstance: any) {
 
                 let sendPayload = {
                     assetValue,
-                    memo: 'Weed Saves Lives',
+                    memo: 'Sending Cacao',
                     recipient: destination,
                 };
 
