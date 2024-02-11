@@ -67,7 +67,7 @@ export const KeepKeyWalletProvider = ({ children }: KeepKeyWalletProviderProps) 
             //     'THOR'
             // ]
 
-            const chains = ['ETH']; // Example chains
+            const chains = ['MAYA']; // Example chains
             // @ts-ignore
             const { keepkeyWallet } = await import('@coinmasters/wallet-keepkey');
             const walletKeepKey: KeepKeyWallet = {
