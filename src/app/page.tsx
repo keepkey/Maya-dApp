@@ -22,6 +22,9 @@ import {
     useDisclosure,
     AvatarBadge,
     useToast,
+    Badge,
+    HStack,
+    Table, Thead, Tbody, Tr, Th, Td, TableContainer,
 } from '@chakra-ui/react';
 import { useKeepKeyWallet } from './contexts/WalletProvider';
 import { theme } from './styles/theme';
@@ -29,6 +32,10 @@ import Header from './components/navBar';
 import formatCacao from './utils/formatBalances';
 import { useHandleTransfer } from './hooks/useTransfer';
 import { Toast } from '@chakra-ui/react';
+import { useCacaoPrice } from './contexts/CacaoPriceContext';
+import { FaCopy } from 'react-icons/fa';
+import Confetti from 'react-confetti';
+
 const ForceDarkMode = ({ children }: { children: React.ReactNode }) => {
     const { setColorMode } = useColorMode();
 
@@ -51,8 +58,11 @@ const Home = () => {
     const [amountToSend, setAmountToSend] = useState("");
     const [destination, setDestination] = useState("");
     const [isSending, setIsSending] = useState(false);
+    const [cacaoUSD, setCacaoUSD] = useState(0);
     const toast = useToast();
     const handleTransfer = useHandleTransfer(keepkeyInstance);
+    const cacaoPrice = useCacaoPrice();
+    const [showConfetti, setShowConfetti] = useState(false);
 
     const onClickSend = async () => {
         try {
@@ -78,7 +88,6 @@ const Home = () => {
                 })
             )
             const txHash = await handleTransfer("CACAO", parseFloat(amountToSend), destination);
-            console.log("txHash: ", txHash);
             toast({
                 title: "Success",
                 description: String(txHash),
@@ -95,8 +104,15 @@ const Home = () => {
             if (keepkeyInstance && keepkeyInstance['MAYA'])
 
                 setWalletBalances(formatCacao(keepkeyInstance['MAYA'].wallet.balance[0].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[0].decimalMultiplier));
+            // Trigger confetti
+            setShowConfetti(true);
 
+            // Optional: Hide confetti after a few seconds
+            setTimeout(() => {
+                setShowConfetti(false);
+            }, 5000); // Adjust time as needed
             setIsSending(false);
+
         } catch (error) {
             console.error("Error initiating transfer:", error);
             setIsSending(false);
@@ -111,10 +127,10 @@ const Home = () => {
                 const walletMethods = keepkeyInstance['MAYA'].walletMethods;
                 const address = await walletMethods.getAddress();
                 setWalletAddress(address);
-                console.log("address: ", address);
                 const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[0].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[0].decimalMultiplier);
-                console.log("balance: ", balance);
                 setWalletBalances(balance);
+                const cacaoPriceValue = cacaoPrice || 0; // Add null check and default value
+                setCacaoUSD(Number(balance) * cacaoPriceValue); // Ensure balance and cacaoPrice are of type number
             }
         } catch (e) {
             console.error(e)
@@ -124,9 +140,17 @@ const Home = () => {
     useEffect(() => {
         loadWallet();
     }, [keepkeyInstance]);
+    const handleMaxClick = () => {
+        // Logic to set the max amount
+        setAmountToSend((Number(walletBalances) - 1).toString());
+
+
+    };
 
     return (
         <ChakraProvider theme={theme}>
+            {showConfetti && <Confetti />}
+
             <ForceDarkMode>
                 <Box minHeight="100vh" bg="gray.700">
                     <Header connectWallet={connectWallet} disconnectWallet={disconnectWallet} isConnected={isConnected} />
@@ -140,10 +164,10 @@ const Home = () => {
                             <Box textAlign="center" mt={4}>
                                 {isConnected ? (
                                     <div>
+
                                         <VStack align="start" borderRadius="md" p={6} spacing={5}>
-                                            <Heading as="h1" mb={4} size="lg">
-                                                Send Crypto!
-                                            </Heading>
+
+
                                             {isPairing ? (
                                                 <Box>
                                                     <Text mb={2}>
@@ -161,11 +185,40 @@ const Home = () => {
                                                                 </AvatarBadge>
                                                             </Avatar>
                                                         </Box>
-                                                        <Box>
-                                                            {/* Additional content can be added here if needed */}
-                                                        </Box>
+                                                        <TableContainer>
+                                                            <Table colorScheme='teal'>
+
+                                                                <Tbody>
+                                                                    <Tr>
+                                                                        <Td>Connected Address</Td>
+                                                                        <Td>
+                                                                            <HStack onClick={() => {
+                                                                                navigator.clipboard.writeText(walletAddress);
+                                                                                toast({
+                                                                                    title: "Copied",
+                                                                                    description: "Address copied to clipboard",
+                                                                                    status: "success",
+                                                                                    duration: 3000,
+                                                                                    isClosable: true,
+                                                                                });
+                                                                            }}>
+                                                                                <Text>
+                                                                                    {walletAddress}
+                                                                                </Text>
+                                                                                <FaCopy style={{ marginLeft: '0.5rem', cursor: 'pointer' }} />
+                                                                            </HStack>
+                                                                        </Td>
+                                                                    </Tr>
+                                                                    <Tr>
+                                                                        <Td>Available Balance</Td>
+                                                                        <Td>{walletBalances} CACAO <Text fontSize={"12px"}> (~{cacaoUSD.toFixed(3)}) USD</Text> </Td>
+                                                                    </Tr>
+                                                                </Tbody>
+                                                            </Table>
+                                                        </TableContainer>
                                                     </Flex>
                                                     <br />
+
                                                     <Grid
                                                         gap={10}
                                                         templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
@@ -180,7 +233,10 @@ const Home = () => {
                                                             />
                                                         </FormControl>
                                                         <FormControl>
-                                                            <FormLabel>Input Amount:</FormLabel>
+                                                            <HStack>
+                                                                <FormLabel>Input Amount:</FormLabel>
+                                                                <Badge marginBottom={2} colorScheme="green" onClick={handleMaxClick} style={{ cursor: 'pointer' }}>Max</Badge>
+                                                            </HStack>
                                                             <Input
                                                                 onChange={(e) => setAmountToSend(e.target.value)}
                                                                 placeholder="0.0"
@@ -188,18 +244,13 @@ const Home = () => {
                                                             />
                                                         </FormControl>
                                                     </Grid>
-                                                    <br />
-                                                    <Text>
-                                                        Connected Address: {walletAddress}
-                                                    </Text>
-                                                    <br />
-                                                    <Text>
-                                                        Available Balance: {walletBalances} CACAO
-                                                    </Text>
+
                                                 </div>
                                             )}
                                             <Button
-                                                colorScheme="green"
+                                                bg="#131c3d"
+                                                _hover={{ bg: '#1a2249' }}
+                                                border={"1px solid teal"}
                                                 w="full"
                                                 mt={4}
                                                 isLoading={isSubmitting}

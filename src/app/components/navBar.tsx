@@ -8,10 +8,12 @@ import {
     MenuList,
     MenuItem,
     Image,
-    Text
+    Text,
+    Badge,
+    HStack
 } from '@chakra-ui/react';
 import { FaCircle } from 'react-icons/fa';
-
+import { useCacaoPrice } from '../contexts/CacaoPriceContext';
 export interface HeaderProps {
     connectWallet: () => Promise<void>;
     disconnectWallet: () => Promise<void>;
@@ -19,10 +21,20 @@ export interface HeaderProps {
 }
 
 const Header = ({ connectWallet, disconnectWallet, isConnected }: HeaderProps) => {
+    const cacaoPrice = useCacaoPrice(); // Use the hook to get the current CACAO price
+    console.log("cacaoPrice: ", cacaoPrice)
     return (
-        <Flex justifyContent="space-between" alignItems="center" p={2} bg="#131c3d" color="white" border={"1px solid white"} borderRadius={"10px"}>
-            <Image src="/maya.jpg" alt="Maya Logo" boxSize={"48px"} style={{ borderRadius: 'base' }} />
-            <Text fontSize={"36px"}>Mayachain</Text>
+        <Flex justifyContent="space-between" alignItems="center" p={2} bg="#131c3d" color="white" border={"1px solid teal"} borderRadius={"10px"}>
+            <Box>
+                <HStack>
+
+                    <Image src="/maya.jpg" alt="Maya Logo" boxSize={"48px"} style={{ borderRadius: 'base' }} />
+                    <Badge colorScheme="green" borderRadius="full" px="2">
+                        {cacaoPrice} USD
+                    </Badge>
+                </HStack>
+            </Box>
+            <Text fontSize={"36px"}>MayaChain</Text>
             <Menu>
                 <Box style={{ position: 'relative' }}>
                     <MenuButton
