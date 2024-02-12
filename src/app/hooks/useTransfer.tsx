@@ -1,5 +1,3 @@
-// hooks/useHandleTransfer.ts
-
 import { useContext } from 'react';
 // Import necessary contexts or utilities
 import { AssetValue } from '@coinmasters/core';
@@ -26,7 +24,7 @@ export function useHandleTransfer(keepkeyInstance: any) {
 
                 let sendPayload = {
                     assetValue,
-                    memo: 'Weed Saves Lives',
+                    memo: 'Chaac invokes the power of thunder and lightning to strike down his enemies.',
                     recipient: destination,
                 };
 
