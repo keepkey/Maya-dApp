@@ -10,6 +10,7 @@ interface KeepKeyWallet {
     wallet: any;
     status: string;
     isConnected: boolean;
+    MAYA: any;
 }
 
 //@ts-ignore
@@ -77,6 +78,7 @@ export const KeepKeyWalletProvider = ({ children }: KeepKeyWalletProviderProps) 
                 wallet: keepkeyWallet,
                 status: 'offline',
                 isConnected: false,
+                MAYA: {}
             };
 
             const allByCaip = chains.map((chainStr) => {
