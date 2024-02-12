@@ -3,42 +3,30 @@
     * KeepKey Wallet Integration Example
 
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import {
     FormControl,
     FormLabel,
     Grid,
     Heading,
     Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
     Spinner,
     Text,
-    useToast,
     VStack,
     Box,
     Button,
     Flex,
     Avatar,
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
     ChakraProvider,
     useColorMode,
     useDisclosure,
     AvatarBadge,
-    IconButton,
 } from '@chakra-ui/react';
-import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useKeepKeyWallet } from './contexts/WalletProvider';
 import { theme } from './styles/theme';
-import Image from 'next/image';
+import Header from './components/navBar';
+import formatCacao from './utils/formatBalances';
+import { useHandleTransfer } from './hooks/useTransfer';
 
 const ForceDarkMode = ({ children }: { children: React.ReactNode }) => {
     const { setColorMode } = useColorMode();
@@ -50,67 +38,47 @@ const ForceDarkMode = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
 };
 
-interface HeaderProps {
-    connectWallet: () => Promise<void>;
-    disconnectWallet: () => Promise<void>;
-    isConnected: boolean;
-}
-
-const Header = ({ connectWallet, disconnectWallet, isConnected }: HeaderProps) => {
-    return (
-        <Flex justifyContent="space-between" alignItems="center" p={4} bg="gray.800" color="white">
-            <Image src="/maya.jpg" alt="Maya Logo" width={60} height={60} style={{ borderRadius: 'base' }} />
-            <Box>Mayachain</Box>
-            <Menu>
-                <MenuButton as={Button} onClick={!isConnected ? connectWallet : undefined} aria-label="Options">
-                    <Avatar size="lg" src="/keepkey.png" borderRadius="base" />
-                </MenuButton>
-                <MenuList>
-                    {!isConnected && (
-                        <MenuItem onClick={connectWallet}>Connect Wallet</MenuItem>
-                    )}
-                    {isConnected && (
-                        <MenuItem onClick={disconnectWallet}>Disconnect Wallet</MenuItem>
-                    )}
-                    <MenuItem>Settings</MenuItem>
-                </MenuList>
-            </Menu>
-        </Flex>
-    );
-};
 
 const Home = () => {
     const { connectWallet, disconnectWallet, keepkeyInstance } = useKeepKeyWallet();
     const isConnected = !!keepkeyInstance;
     const [walletAddress, setWalletAddress] = useState('');
-    const [walletBalances, setWalletBalances] = useState([]);
+    const [walletBalances, setWalletBalances] = useState('0');
     const { isOpen, onOpen, onClose } = useDisclosure(); // Add disclosure for modal
     const [isPairing, setIsPairing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [inputAmount, setInputAmount] = useState('');
-    const [sendAmount, setSendAmount] = useState<any | undefined>();
     const [recipient, setRecipient] = useState('');
     const [modalType, setModalType] = useState(''); // Add state for modal type
     const [avatarUrl, setAvatarUrl] = useState('https://pioneers.dev/coins/mayachain.png');
+    const [amountToSend, setAmountToSend] = useState("");
+    const [destination, setDestination] = useState("");
 
-    let handleSend = async function(){
-        try{
+    const handleTransfer = useHandleTransfer(keepkeyInstance);
 
-        }catch(e){
+    const onClickSend = async () => {
+        try {
+            const txHash = await handleTransfer("CACAO", parseFloat(amountToSend), destination);
 
+        } catch (error) {
+            console.error("Error initiating transfer:", error);
         }
-    }
+    };
 
-    let loadWallet = async function(){
-        try{
+
+    let loadWallet = async function () {
+        try {
             console.log("keepkeyInstance: ", keepkeyInstance);
-            if(keepkeyInstance && keepkeyInstance['MAYA']){
-                const address = keepkeyInstance['MAYA'].wallet.address;
-                const balances = keepkeyInstance['MAYA'].wallet.balance;
+            if (keepkeyInstance && keepkeyInstance['MAYA']) {
+                const walletMethods = keepkeyInstance['MAYA'].walletMethods;
+                const address = await walletMethods.getAddress();
                 setWalletAddress(address);
-                setWalletBalances(balances);
+                console.log("address: ", address);
+                const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[0].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[0].decimalMultiplier);
+                console.log("balance: ", balance);
+                setWalletBalances(balance);
             }
-        }catch(e){
+        } catch (e) {
             console.error(e)
         }
     }
@@ -134,7 +102,7 @@ const Home = () => {
                             {isConnected ? (
                                 <div>
                                     <VStack align="start" borderRadius="md" p={6} spacing={5}>
-                                        <Modal
+                                        {/* <Modal
                                             isOpen={isOpen}
                                             onClose={() => {
                                                 onClose();
@@ -155,7 +123,7 @@ const Home = () => {
                                                 </ModalBody>
                                                 <ModalFooter />
                                             </ModalContent>
-                                        </Modal>
+                                        </Modal> */}
                                         <Heading as="h1" mb={4} size="lg">
                                             Send Crypto!
                                         </Heading>
@@ -163,7 +131,7 @@ const Home = () => {
                                         {isPairing ? (
                                             <Box>
                                                 <Text mb={2}>
-                                                    Connecting to {context}...
+                                                    {/* Connecting to {context}... */}
                                                     <Spinner size="xl" />
                                                     Please check your wallet to approve the connection.
                                                 </Text>
@@ -174,7 +142,7 @@ const Home = () => {
                                                     <Box>
                                                         <Avatar size="xl" src={avatarUrl}>
                                                             <AvatarBadge boxSize='1.25em'>
-                                                                <Image rounded="full" src={'/keepkey'} width={'40'} height={'40'} />
+                                                                <Avatar border={"1px solid white"} src={'/keepkey.png'} width={'50'} height={'50'} />
                                                             </AvatarBadge>
                                                         </Avatar>
                                                     </Box>
@@ -190,23 +158,28 @@ const Home = () => {
                                                     <FormControl>
                                                         <FormLabel>Recipient:</FormLabel>
                                                         <Input
-                                                            onChange={(e) => setRecipient(e.target.value)}
+                                                            onChange={(e) => setDestination(e.target.value)}
                                                             placeholder="Address"
-                                                            value={recipient}
+                                                            value={destination}
                                                         />
                                                     </FormControl>
                                                     <FormControl>
                                                         <FormLabel>Input Amount:</FormLabel>
                                                         <Input
-                                                            onChange={(e) => handleInputChange(e.target.value)}
+                                                            onChange={(e) => setAmountToSend(e.target.value)}
+
                                                             placeholder="0.0"
-                                                            value={inputAmount}
+                                                            value={amountToSend}
                                                         />
                                                     </FormControl>
                                                 </Grid>
                                                 <br />
                                                 <Text>
-                                                    Available Balance:
+                                                    Connected Address: {walletAddress}
+                                                </Text>
+                                                <br />
+                                                <Text>
+                                                    Available Balance: {walletBalances} CACAO
                                                 </Text>
                                             </div>
                                         )}
@@ -215,8 +188,8 @@ const Home = () => {
                                             colorScheme="green"
                                             w="full"
                                             mt={4}
-                                            // isLoading={isSubmitting}
-                                            onClick={handleSend}
+                                            isLoading={isSubmitting}
+                                            onClick={() => onClickSend()}
                                         >
                                             {isSubmitting ? <Spinner size="xs" /> : 'Send'}
                                         </Button>
