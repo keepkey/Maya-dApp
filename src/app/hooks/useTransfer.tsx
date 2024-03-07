@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { AssetValue } from '@coinmasters/core';
 
 export function useHandleTransfer(keepkeyInstance: any) {
-    const handleTransfer = async (asset: string, amount: number, destination: string) => {
+    const handleTransfer = async (asset: string, amount: number, destination: string, memo: string) => {
         console.log("handleTransfer: ", asset, amount, destination);
         console.log("keepkeyInstance: ", keepkeyInstance);
         console.log("asset: ", asset, "amount: ", amount, "destination: ", destination);
@@ -24,7 +24,7 @@ export function useHandleTransfer(keepkeyInstance: any) {
 
                 let sendPayload = {
                     assetValue,
-                    memo: 'Chaac invokes the power of thunder and lightning to strike down his enemies.',
+                    memo,
                     recipient: destination,
                 };
 

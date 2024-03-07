@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-
+import { AssetValue } from '@coinmasters/core';
 
 // Define the interface for your wallet details
 interface KeepKeyWallet {
@@ -46,7 +46,11 @@ const getWalletByChain = async (keepkey: any, chain: any) => {
             const pubkeyBalance = await walletMethods.getBalance([{ pubkey }]);
             balance.push(Number(pubkeyBalance[0].toFixed(pubkeyBalance[0].decimal)) || 0);
         }
-        balance = [{ total: balance.reduce((a, b) => a + b, 0), address }];
+        let assetValue = AssetValue.fromChainOrSignature(
+            Chain.Bitcoin,
+            balance.reduce((a, b) => a + b, 0),
+        );
+        balance = [assetValue];
     } else {
         balance = await walletMethods.getBalance([{ address }]);
     }
@@ -102,7 +106,7 @@ export const KeepKeyWalletProvider = ({ children }: KeepKeyWalletProviderProps) 
             let keepkeyConfig = {
                 apiKey: localStorage.getItem('keepkeyApiKey') || '123',
                 pairingInfo: {
-                    name: "Keepkey Template",
+                    name: "Maya Wallet",
                     imageUrl: "https://i.pinimg.com/originals/24/77/56/247756ac928c5f60fc786aef33485f17.jpg",
                     basePath: 'http://localhost:1646/spec/swagger.json',
                     url: 'http://localhost:1646',
@@ -118,17 +122,21 @@ export const KeepKeyWalletProvider = ({ children }: KeepKeyWalletProviderProps) 
                 config: { keepkeyConfig, covalentApiKey, ethplorerApiKey, utxoApiKey },
             }
 
+            console.log("Checkpoint 1: input: ", input)
             // Step 1: Invoke the outer function with the input object
             const connectFunction = walletKeepKey.wallet.connect(input);
+            console.log("Checkpoint 1a: connectFunction: ", connectFunction)
 
             // Step 2: Invoke the inner function with chains and paths
             let kkApikey = await connectFunction(chains, paths);
             localStorage.setItem('keepkeyApiKey', kkApikey);
+            console.log("Checkpoint 2: kkApikey: ", kkApikey)
 
             //got balances
             for (let i = 0; i < chains.length; i++) {
                 let chain = chains[i]
                 let walletData: any = await getWalletByChain(keepkey, chain);
+                console.log("walletData: ", walletData)
                 // keepkey[chain].wallet.address = walletData.address
                 keepkey[chain].wallet.balance = walletData.balance
             }

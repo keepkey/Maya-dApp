@@ -8,12 +8,17 @@ import {
     FormControl,
     FormLabel,
     Grid,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
     Heading,
     Input,
     Spinner,
     Text,
     VStack,
     Box,
+    Select,
     Button,
     Flex,
     Avatar,
@@ -26,6 +31,7 @@ import {
     HStack,
     Table, Thead, Tbody, Tr, Th, Td, TableContainer,
 } from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useKeepKeyWallet } from './contexts/WalletProvider';
 import { theme } from './styles/theme';
 import Header from './components/navBar';
@@ -33,6 +39,7 @@ import formatCacao from './utils/formatBalances';
 import { useHandleTransfer } from './hooks/useTransfer';
 import { Toast } from '@chakra-ui/react';
 import { useCacaoPrice } from './contexts/CacaoPriceContext';
+import { useMayaPrice } from './contexts/MayaPriceContext';
 import { FaCopy } from 'react-icons/fa';
 import Confetti from 'react-confetti';
 
@@ -58,10 +65,12 @@ const Home = () => {
     const [amountToSend, setAmountToSend] = useState("");
     const [destination, setDestination] = useState("");
     const [isSending, setIsSending] = useState(false);
+    const [selectedCurrency, setSelectedCurrency] = useState('CACAO');
     const [cacaoUSD, setCacaoUSD] = useState(0);
     const toast = useToast();
     const handleTransfer = useHandleTransfer(keepkeyInstance);
     const cacaoPrice = useCacaoPrice();
+    const mayaPrice = useMayaPrice();
     const [showConfetti, setShowConfetti] = useState(false);
 
     const onClickSend = async () => {
@@ -101,9 +110,9 @@ const Home = () => {
                 }, 3000);
             }
 
-            if (keepkeyInstance && keepkeyInstance['MAYA'])
-
+            if (keepkeyInstance && keepkeyInstance['MAYA']){
                 setWalletBalances(formatCacao(keepkeyInstance['MAYA'].wallet.balance[0].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[0].decimalMultiplier));
+            }
             // Trigger confetti
             setShowConfetti(true);
 
@@ -127,10 +136,21 @@ const Home = () => {
                 const walletMethods = keepkeyInstance['MAYA'].walletMethods;
                 const address = await walletMethods.getAddress();
                 setWalletAddress(address);
-                const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[0].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[0].decimalMultiplier);
-                setWalletBalances(balance);
-                const cacaoPriceValue = cacaoPrice || 0; // Add null check and default value
-                setCacaoUSD(Number(balance) * cacaoPriceValue); // Ensure balance and cacaoPrice are of type number
+
+                if(selectedCurrency === 'CACAO'){
+                    const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[0].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[0].decimalMultiplier);
+                    console.log("balance: ", balance);
+                    setWalletBalances(balance);
+                    const cacaoPriceValue = cacaoPrice || 0; // Add null check and default value
+                    setCacaoUSD(Number(balance) * cacaoPriceValue); // Ensure balance and cacaoPrice are of type number
+                }else{
+                    const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[1].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[1].decimalMultiplier);
+                    console.log("balance: ", balance);
+                    console.log("mayaPrice: ", mayaPrice);
+                    setWalletBalances(balance);
+                    const mayaPriceValue = mayaPrice || 0; // Add null check and default value
+                    setCacaoUSD(Number(balance) * mayaPriceValue); // Ensure balance and cacaoPrice are of type number
+                }
             }
         } catch (e) {
             console.error(e)
@@ -140,12 +160,43 @@ const Home = () => {
     useEffect(() => {
         loadWallet();
     }, [keepkeyInstance]);
+
     const handleMaxClick = () => {
         // Logic to set the max amount
         setAmountToSend((Number(walletBalances) - 1).toString());
-
-
     };
+
+    const setCurrencyAndLoadBalance = async (currency) => {
+        console.log("currency: ", currency);
+        setSelectedCurrency(currency);
+    };
+
+    //selectedCurrency
+    let updateBalance = async function () {
+        try{
+            if (keepkeyInstance && keepkeyInstance['MAYA']){
+                if(selectedCurrency === 'CACAO'){
+                    const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[0].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[0].decimalMultiplier);
+                    console.log("balance: ", balance);
+                    setWalletBalances(balance);
+                    const cacaoPriceValue = cacaoPrice || 0; // Add null check and default value
+                    setCacaoUSD(Number(balance) * cacaoPriceValue); // Ensure balance and cacaoPrice are of type number
+                }else{
+                    const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[1].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[1].decimalMultiplier);
+                    console.log("balance: ", balance);
+                    setWalletBalances(balance);
+                    console.log("mayaPrice: ", mayaPrice);
+                    const mayaPriceValue = mayaPrice || 0; // Add null check and default value
+                    setCacaoUSD(Number(balance) * mayaPriceValue); // Ensure balance and cacaoPrice are of type number
+                }
+            }
+        }catch(e){
+            console.error(e)
+        }
+    }
+    useEffect(() => {
+        updateBalance();
+    }, [selectedCurrency]);
 
     return (
         <ChakraProvider theme={theme}>
@@ -211,7 +262,17 @@ const Home = () => {
                                                                     </Tr>
                                                                     <Tr>
                                                                         <Td>Available Balance</Td>
-                                                                        <Td>{walletBalances} CACAO <Text fontSize={"12px"}> (~{cacaoUSD.toFixed(3)}) USD</Text> </Td>
+                                                                        <Td>
+                                                                            <Menu>
+                                                                                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                                                                                    {walletBalances} {selectedCurrency} <Text fontSize={"12px"}> (~{cacaoUSD.toFixed(3)}) USD</Text>
+                                                                                </MenuButton>
+                                                                                <MenuList>
+                                                                                    <MenuItem onClick={() => setCurrencyAndLoadBalance('CACAO')}>CACAO</MenuItem>
+                                                                                    <MenuItem onClick={() => setCurrencyAndLoadBalance('MAYA')}>MAYA</MenuItem>
+                                                                                </MenuList>
+                                                                            </Menu>
+                                                                        </Td>
                                                                     </Tr>
                                                                 </Tbody>
                                                             </Table>
