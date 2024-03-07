@@ -16,7 +16,7 @@ interface KeepKeyWallet {
 //@ts-ignore
 import { getPaths } from "@pioneer-platform/pioneer-coins"; // Corrected import to use the new hook
 //@ts-ignore
-import { ChainToNetworkId, getChainEnumValue } from '@coinmasters/types';
+import { Chain, ChainToNetworkId, getChainEnumValue } from '@coinmasters/types';
 
 
 // Define the type for the context state

@@ -64,6 +64,7 @@ const Home = () => {
     const avatarUrl = 'https://pioneers.dev/coins/mayachain.png';
     const [amountToSend, setAmountToSend] = useState("");
     const [destination, setDestination] = useState("");
+    const [memo, setMemo] = useState("");
     const [isSending, setIsSending] = useState(false);
     const [selectedCurrency, setSelectedCurrency] = useState('CACAO');
     const [cacaoUSD, setCacaoUSD] = useState(0);
@@ -96,7 +97,7 @@ const Home = () => {
                     isClosable: true,
                 })
             )
-            const txHash = await handleTransfer("CACAO", parseFloat(amountToSend), destination);
+            const txHash = await handleTransfer("CACAO", parseFloat(amountToSend), destination, memo);
             toast({
                 title: "Success",
                 description: String(txHash),
@@ -166,7 +167,7 @@ const Home = () => {
         setAmountToSend((Number(walletBalances) - 1).toString());
     };
 
-    const setCurrencyAndLoadBalance = async (currency) => {
+    const setCurrencyAndLoadBalance = async (currency:any) => {
         console.log("currency: ", currency);
         setSelectedCurrency(currency);
     };
@@ -305,7 +306,19 @@ const Home = () => {
                                                             />
                                                         </FormControl>
                                                     </Grid>
-
+                                                    <br/>
+                                                    <Grid
+                                                        gap={10}
+                                                    >
+                                                        <FormControl>
+                                                            <FormLabel>Memo: (optional)</FormLabel>
+                                                            <Input
+                                                                onChange={(e) => setMemo(e.target.value)}
+                                                                placeholder="Memo"
+                                                                value={memo}
+                                                            />
+                                                        </FormControl>
+                                                    </Grid>
                                                 </div>
                                             )}
                                             <Button
