@@ -99,20 +99,38 @@ const Home = () => {
                 })
             )
             console.log("selectedCurrency: ", selectedCurrency);
-            const txHash = await handleTransfer(selectedCurrency, parseFloat(amountToSend), destination, memo);
-            toast({
-                title: "Success",
-                description: String(txHash),
-                status: "success",
-                duration: 5000,
-                isClosable: true,
-            });
-            if (txHash) {
-                setTimeout(() => {
-                    window.open('https://www.mayascan.org/tx/' + String(txHash), '_blank', 'toolbar=0,location=0,menubar=0,width=600,height=400');
-                }, 3000);
+            if (selectedCurrency === 'MAYA') {
+                const convertedAmount = (Number(amountToSend) / 1000000).toString();
+                const txHash = await handleTransfer(selectedCurrency, parseFloat(convertedAmount), destination, memo);
+                toast({
+                    title: "Success",
+                    description: String(txHash),
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                });
+                if (txHash) {
+                    setTimeout(() => {
+                        window.open('https://www.mayascan.org/tx/' + String(txHash), '_blank', 'toolbar=0,location=0,menubar=0,width=600,height=400');
+                    }, 3000);
+                }
             }
 
+            else {
+                const txHash = await handleTransfer(selectedCurrency, parseFloat(amountToSend), destination, memo);
+                toast({
+                    title: "Success",
+                    description: String(txHash),
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                });
+                if (txHash) {
+                    setTimeout(() => {
+                        window.open('https://www.mayascan.org/tx/' + String(txHash), '_blank', 'toolbar=0,location=0,menubar=0,width=600,height=400');
+                    }, 3000);
+                }
+            }
 
             // Trigger confetti
             setShowConfetti(true);
