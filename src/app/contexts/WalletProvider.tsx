@@ -122,21 +122,17 @@ export const KeepKeyWalletProvider = ({ children }: KeepKeyWalletProviderProps) 
                 config: { keepkeyConfig, covalentApiKey, ethplorerApiKey, utxoApiKey },
             }
 
-            console.log("Checkpoint 1: input: ", input)
             // Step 1: Invoke the outer function with the input object
             const connectFunction = walletKeepKey.wallet.connect(input);
-            console.log("Checkpoint 1a: connectFunction: ", connectFunction)
 
             // Step 2: Invoke the inner function with chains and paths
             let kkApikey = await connectFunction(chains, paths);
             localStorage.setItem('keepkeyApiKey', kkApikey);
-            console.log("Checkpoint 2: kkApikey: ", kkApikey)
 
             //got balances
             for (let i = 0; i < chains.length; i++) {
                 let chain = chains[i]
                 let walletData: any = await getWalletByChain(keepkey, chain);
-                console.log("walletData: ", walletData)
                 // keepkey[chain].wallet.address = walletData.address
                 keepkey[chain].wallet.balance = walletData.balance
             }

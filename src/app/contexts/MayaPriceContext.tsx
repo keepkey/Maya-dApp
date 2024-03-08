@@ -18,9 +18,8 @@ export const MayaPriceProvider: FC<MayaPriceProviderProps> = ({ children }) => {
         const fetchMayaPrice = async () => {
             try {
                 const response = await axios.get('https://www.mayascan.org/api/maya/price?days=1');
-                const latestCandle = response.data.candles.pop(); // Assuming you want the latest price
-                console.log("latestCandle: ", latestCandle);
-                setMayaPrice(latestCandle.close); // Using the close price as the current price
+                setMayaPrice(response.data.mayaPriceInUsd.toFixed(3));
+
             } catch (error) {
                 console.error("Failed to fetch Maya price:", error);
             }

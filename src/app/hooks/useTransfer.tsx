@@ -4,17 +4,11 @@ import { AssetValue } from '@coinmasters/core';
 
 export function useHandleTransfer(keepkeyInstance: any) {
     const handleTransfer = async (asset: string, amount: number, destination: string, memo: string) => {
-        console.log("handleTransfer: ", asset, amount, destination);
-        console.log("keepkeyInstance: ", keepkeyInstance);
-        console.log("asset: ", asset, "amount: ", amount, "destination: ", destination);
+
         if (!asset || !amount) return;
-        console.log(keepkeyInstance)
-        console.log("Available keys in keepKey:", Object.keys(keepkeyInstance));
 
         if (keepkeyInstance.MAYA.walletMethods) {
-            console.log(keepkeyInstance.MAYA)
 
-            console.log(keepkeyInstance.MAYA.walletMethods)
             try {
                 const assetString = `MAYA.${asset}`;
                 await AssetValue.loadStaticAssets();
@@ -23,7 +17,6 @@ export function useHandleTransfer(keepkeyInstance: any) {
                     assetString,
                     amount
                 );
-                console.log("assetValue: ", assetValue);
 
                 let sendPayload = {
                     assetValue,

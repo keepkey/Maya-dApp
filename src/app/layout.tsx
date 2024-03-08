@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { WalletContext, KeepKeyWalletProvider } from "./contexts/WalletProvider";
 import { CacaoPriceProvider } from "./contexts/CacaoPriceContext"; // Make sure the path is correct
+import { MayaPriceProvider } from "./contexts/MayaPriceContext";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -17,11 +19,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <CacaoPriceProvider> {/* Wrap KeepKeyWalletProvider with CacaoPriceProvider */}
-        <KeepKeyWalletProvider>
-          <body className={inter.className}>{children}</body>
-        </KeepKeyWalletProvider>
-      </CacaoPriceProvider>
+      <MayaPriceProvider>
+        <CacaoPriceProvider> {/* Wrap KeepKeyWalletProvider with CacaoPriceProvider */}
+          <KeepKeyWalletProvider>
+            <body className={inter.className}>{children}</body>
+          </KeepKeyWalletProvider>
+        </CacaoPriceProvider>
+      </MayaPriceProvider>
     </html>
   );
 }
