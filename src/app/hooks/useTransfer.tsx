@@ -11,7 +11,9 @@ export function useHandleTransfer(keepkeyInstance: any) {
         console.log(keepkeyInstance)
         console.log("Available keys in keepKey:", Object.keys(keepkeyInstance));
 
-        if (asset === "CACAO" && keepkeyInstance.MAYA.walletMethods) {
+        if (keepkeyInstance.MAYA.walletMethods) {
+            console.log(keepkeyInstance.MAYA)
+
             console.log(keepkeyInstance.MAYA.walletMethods)
             try {
                 const assetString = `MAYA.${asset}`;
@@ -21,13 +23,13 @@ export function useHandleTransfer(keepkeyInstance: any) {
                     assetString,
                     amount
                 );
+                console.log("assetValue: ", assetValue);
 
                 let sendPayload = {
                     assetValue,
                     memo,
                     recipient: destination,
                 };
-
                 const txHash = await keepkeyInstance.MAYA.walletMethods.transfer(sendPayload);
                 console.log("txHash: ", 'https://www.mayascan.org/tx/' + String(txHash.txid));
                 console.log("Transfer successful");

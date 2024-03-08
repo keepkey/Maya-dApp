@@ -75,7 +75,7 @@ const Home = () => {
     const mayaPrice = useMayaPrice();
     const [showConfetti, setShowConfetti] = useState(false);
 
-    const onClickSend = async () => {
+    const onClickSend = async (selectedCurrency: any) => {
         try {
             setIsSending(true);
             if (!amountToSend || !destination) {
@@ -98,7 +98,8 @@ const Home = () => {
                     isClosable: true,
                 })
             )
-            const txHash = await handleTransfer("CACAO", parseFloat(amountToSend), destination, memo);
+            console.log("selectedCurrency: ", selectedCurrency);
+            const txHash = await handleTransfer(selectedCurrency, parseFloat(amountToSend), destination, memo);
             toast({
                 title: "Success",
                 description: String(txHash),
@@ -112,9 +113,7 @@ const Home = () => {
                 }, 3000);
             }
 
-            if (keepkeyInstance && keepkeyInstance['MAYA']) {
-                setWalletBalances(formatCacao(keepkeyInstance['MAYA'].wallet.balance[0].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[0].decimalMultiplier));
-            }
+
             // Trigger confetti
             setShowConfetti(true);
 
@@ -335,7 +334,7 @@ const Home = () => {
                                                 w="full"
                                                 mt={4}
                                                 isLoading={isSubmitting}
-                                                onClick={() => onClickSend()}
+                                                onClick={() => onClickSend(selectedCurrency)}
                                             >
                                                 {isSubmitting ? <Spinner size="xs" /> : 'Send'}
                                             </Button>
