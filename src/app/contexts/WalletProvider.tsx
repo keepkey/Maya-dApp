@@ -97,6 +97,8 @@ export const KeepKeyWalletProvider = ({ children }: KeepKeyWalletProviderProps) 
             // @ts-ignore
             // Implement the addChain function with additional logging
             function addChain({ chain, walletMethods, wallet }) {
+                console.log('Adding chain:', chain);
+                console.log('walletMethods:', walletMethods);
                 keepkey[chain] = {
                     walletMethods,
                     wallet

@@ -3,7 +3,7 @@
     * KeepKey Wallet Integration Example
 
  */
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import {
     FormControl,
     FormLabel,
@@ -22,9 +22,12 @@ import {
     Button,
     Flex,
     Avatar,
+    Alert,
+    AlertIcon,
     ChakraProvider,
     useColorMode,
     useDisclosure,
+    Switch,
     AvatarBadge,
     useToast,
     Badge,
@@ -37,6 +40,7 @@ import { theme } from './styles/theme';
 import Header from './components/navBar';
 import formatCacao from './utils/formatBalances';
 import { useHandleTransfer } from './hooks/useTransfer';
+import { useHandleDeposit } from './hooks/useDeposit';
 import { Toast } from '@chakra-ui/react';
 import { useCacaoPrice } from './contexts/CacaoPriceContext';
 import { useMayaPrice } from './contexts/MayaPriceContext';
@@ -71,9 +75,11 @@ const Home = () => {
     const [mayaUSD, setMayaUsd] = useState(0);
     const toast = useToast();
     const handleTransfer = useHandleTransfer(keepkeyInstance);
+    const handleDeposit = useHandleTransfer(keepkeyInstance);
     const cacaoPrice = useCacaoPrice();
     const mayaPrice = useMayaPrice();
     const [showConfetti, setShowConfetti] = useState(false);
+    const [useDeposit, setUseDeposit] = useState(false); // State to handle toggle
 
     const onClickSend = async (selectedCurrency: any) => {
         try {
@@ -327,6 +333,18 @@ const Home = () => {
                                                     </Grid>
                                                 </div>
                                             )}
+                                            <FormControl display="flex" alignItems="center">
+                                                <FormLabel htmlFor="use-deposit" mb="0">
+                                                    Advanced: Use Deposit
+                                                </FormLabel>
+                                                <Switch id="use-deposit" isChecked={useDeposit} onChange={() => setUseDeposit(!useDeposit)} />
+                                            </FormControl>
+                                            {useDeposit && (
+                                                <Alert status="warning" variant="solid" mb={4}>
+                                                    <AlertIcon />
+                                                    This method is for advanced users and specific to MayaChain actions. this method is NOT to send funds it is for deposits into vaults.
+                                                </Alert>
+                                            )}
                                             <Button
                                                 bg="#131c3d"
                                                 _hover={{ bg: '#1a2249' }}
@@ -336,7 +354,7 @@ const Home = () => {
                                                 isLoading={isSubmitting}
                                                 onClick={() => onClickSend(selectedCurrency)}
                                             >
-                                                {isSubmitting ? <Spinner size="xs" /> : 'Send'}
+                                                {isSubmitting ? <Spinner size="xs" /> : (useDeposit ? 'Deposit' : 'Send')}
                                             </Button>
                                         </VStack>
                                     </div>

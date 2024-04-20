@@ -23,10 +23,10 @@
     "react-icons": "^5.0.1"
   },
   "devDependencies": {
-    "@coinmasters/core": "^9.0.7",
-    "@coinmasters/helpers": "^9.0.7",
-    "@coinmasters/toolbox-evm": "^9.0.7",
-    "@coinmasters/wallet-keepkey": "^11.0.7",
+    "@coinmasters/core": "^11.0.1",
+    "@coinmasters/helpers": "^11.0.1",
+    "@coinmasters/toolbox-evm": "^11.0.1",
+    "@coinmasters/wallet-keepkey": "^13.0.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
