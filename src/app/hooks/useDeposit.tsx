@@ -41,5 +41,5 @@ export function useHandleDeposit(keepkeyInstance: any) {
         }
     };
 
-    return handleTransfer;
+    return handleDeposit;
 }

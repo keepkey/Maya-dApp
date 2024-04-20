@@ -139,17 +139,32 @@ const Home = () => {
         try {
             console.log("keepkeyInstance: ", keepkeyInstance);
             if (keepkeyInstance && keepkeyInstance['MAYA']) {
+                console.log("keepkeyInstance['MAYA']: ", keepkeyInstance['MAYA']);
                 const walletMethods = keepkeyInstance['MAYA'].walletMethods;
-                const address = await walletMethods.getAddress();
-                setWalletAddress(address);
+                const wallet = keepkeyInstance['MAYA'].wallet;
+                const currency = selectedCurrency === 'CACAO' ? 'CACAO' : 'MAYA';
+                const balanceIndex = currency === 'CACAO' ? 0 : 1;
+                setWalletAddress(wallet.address);
+                console.log("walletMethods: ", walletMethods);
+                console.log("walletMethods: ", walletMethods.balance);
 
-                const balanceIndex = selectedCurrency === 'CACAO' ? 0 : 1;
-                const balance = selectedCurrency === 'CACAO' ? formatCacao(wallet.balance[balanceIndex].bigIntValue, wallet.balance[balanceIndex].decimalMultiplier) : formatMaya(wallet.balance[balanceIndex].bigIntValue, wallet.balance[balanceIndex].decimalMultiplier);
-                setWalletBalances(balance);
+                if (!wallet.balance || wallet.balance.length <= balanceIndex || !wallet.balance[balanceIndex]) {
+                    console.error(`Missing or invalid balance data for ${currency}. Logging 0 as the balance.`);
+                    setWalletBalances(0);
+                    currency === 'CACAO' ? setCacaoUSD(0) : setMayaBalanceUsd(0);
+                    return;
+                }
 
-                const priceValue = selectedCurrency === 'CACAO' ? cacaoPrice : mayaPrice;
-                const usdValue = Number(balance) * (priceValue || 0);
-                selectedCurrency === 'CACAO' ? setCacaoUSD(usdValue) : setMayaBalanceUsd(usdValue);
+                const currentBalance = wallet.balance[balanceIndex];
+                const formattedBalance = currency === 'CACAO' ?
+                    formatCacao(currentBalance.bigIntValue, currentBalance.decimalMultiplier) :
+                    formatMaya(currentBalance.bigIntValue, currentBalance.decimalMultiplier);
+
+                setWalletBalances(formattedBalance);
+
+                const priceValue = currency === 'CACAO' ? cacaoPrice : mayaPrice;
+                const usdValue = Number(formattedBalance) * (priceValue || 0);
+                currency === 'CACAO' ? setCacaoUSD(usdValue) : setMayaBalanceUsd(usdValue);
             }
         } catch (e) {
             console.error(e)
