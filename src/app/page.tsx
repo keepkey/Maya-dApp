@@ -150,7 +150,7 @@ const Home = () => {
 
                 if (!wallet.balance || wallet.balance.length <= balanceIndex || !wallet.balance[balanceIndex]) {
                     console.error(`Missing or invalid balance data for ${currency}. Logging 0 as the balance.`);
-                    setWalletBalances(0);
+                    setWalletBalances('0');
                     currency === 'CACAO' ? setCacaoUSD(0) : setMayaBalanceUsd(0);
                     return;
                 }
