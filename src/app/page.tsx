@@ -38,7 +38,7 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useKeepKeyWallet } from './contexts/WalletProvider';
 import { theme } from './styles/theme';
 import Header from './components/navBar';
-import formatCacao from './utils/formatBalances';
+import { formatCacao, formatMaya } from './utils/formatBalances';
 import { useHandleTransfer } from './hooks/useTransfer';
 import { useHandleDeposit } from './hooks/useDeposit';
 import { Toast } from '@chakra-ui/react';
@@ -72,7 +72,7 @@ const Home = () => {
     const [isSending, setIsSending] = useState(false);
     const [selectedCurrency, setSelectedCurrency] = useState('CACAO');
     const [cacaoUSD, setCacaoUSD] = useState(0);
-    const [mayaUSD, setMayaUsd] = useState(0);
+    const [mayaBalanceUSD, setMayaBalanceUsd] = useState(0);
     const toast = useToast();
     const handleTransfer = useHandleTransfer(keepkeyInstance);
     const handleDeposit = useHandleTransfer(keepkeyInstance);
@@ -104,7 +104,6 @@ const Home = () => {
                     isClosable: true,
                 })
             )
-            console.log("selectedCurrency: ", selectedCurrency);
             const txHash = await handleTransfer(selectedCurrency, parseFloat(amountToSend), destination, memo);
             toast({
                 title: "Success",
@@ -144,20 +143,13 @@ const Home = () => {
                 const address = await walletMethods.getAddress();
                 setWalletAddress(address);
 
-                if (selectedCurrency === 'CACAO') {
-                    const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[0].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[0].decimalMultiplier);
-                    console.log("balance: ", balance);
-                    setWalletBalances(balance);
-                    const cacaoPriceValue = cacaoPrice || 0; // Add null check and default value
-                    setCacaoUSD(Number(balance) * cacaoPriceValue); // Ensure balance and cacaoPrice are of type number
-                } else {
-                    const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[1].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[1].decimalMultiplier);
-                    console.log("balance: ", balance);
-                    console.log("mayaPrice: ", mayaPrice);
-                    setWalletBalances(balance);
-                    const mayaPriceValue = mayaPrice || 0; // Add null check and default value
-                    setMayaUsd(Number(balance) * mayaPriceValue); // Ensure balance and cacaoPrice are of type number
-                }
+                const balanceIndex = selectedCurrency === 'CACAO' ? 0 : 1;
+                const balance = selectedCurrency === 'CACAO' ? formatCacao(wallet.balance[balanceIndex].bigIntValue, wallet.balance[balanceIndex].decimalMultiplier) : formatMaya(wallet.balance[balanceIndex].bigIntValue, wallet.balance[balanceIndex].decimalMultiplier);
+                setWalletBalances(balance);
+
+                const priceValue = selectedCurrency === 'CACAO' ? cacaoPrice : mayaPrice;
+                const usdValue = Number(balance) * (priceValue || 0);
+                selectedCurrency === 'CACAO' ? setCacaoUSD(usdValue) : setMayaBalanceUsd(usdValue);
             }
         } catch (e) {
             console.error(e)
@@ -168,47 +160,35 @@ const Home = () => {
         loadWallet();
     }, [keepkeyInstance]);
 
+    const updateBalance = async () => {
+        try {
+            if (keepkeyInstance?.['MAYA']) {
+                const balanceIndex = selectedCurrency === 'CACAO' ? 0 : 1;
+                const balance = keepkeyInstance['MAYA'].wallet.balance[balanceIndex] ? formatCacao(keepkeyInstance['MAYA'].wallet.balance[balanceIndex].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[balanceIndex].decimalMultiplier) : '0';
+                setWalletBalances(balance);
+
+                const priceValue = selectedCurrency === 'CACAO' ? cacaoPrice : mayaPrice;
+                const usdValue = Number(balance) * (priceValue || 0);
+                selectedCurrency === 'CACAO' ? setCacaoUSD(usdValue) : setMayaBalanceUsd(usdValue);
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    useEffect(() => {
+        updateBalance();
+    }, [selectedCurrency]);
+
+
     const handleMaxClick = () => {
         // Logic to set the max amount
         setAmountToSend((Number(walletBalances) - 1).toString());
     };
 
     const setCurrencyAndLoadBalance = async (currency: any) => {
-        console.log("currency: ", currency);
         setSelectedCurrency(currency);
     };
-
-    //selectedCurrency
-    let updateBalance = async function () {
-        try {
-            if (keepkeyInstance && keepkeyInstance['MAYA']) {
-                if (selectedCurrency === 'CACAO') {
-                    const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[0].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[0].decimalMultiplier);
-                    console.log("balance: ", balance);
-                    setWalletBalances(balance);
-                    const cacaoPriceValue = cacaoPrice || 0; // Add null check and default value
-                    setCacaoUSD(Number(balance) * cacaoPriceValue); // Ensure balance and cacaoPrice are of type number
-                } else {
-                    if (keepkeyInstance['MAYA'].wallet.balance[1]) {
-                        const balance = formatCacao(keepkeyInstance['MAYA'].wallet.balance[1].bigIntValue, keepkeyInstance['MAYA'].wallet.balance[1].decimalMultiplier);
-                        console.log("balance: ", balance);
-                        setWalletBalances(balance);
-                        console.log("mayaPrice: ", mayaPrice);
-                        const mayaPriceValue = mayaPrice || 0; // Add null check and default value
-                        setCacaoUSD(Number(balance) * mayaPriceValue); // Ensure balance and cacaoPrice are of type number
-                    }
-                    else {
-                        setWalletBalances('0');
-                    }
-                }
-            }
-        } catch (e) {
-            console.error(e)
-        }
-    }
-    useEffect(() => {
-        updateBalance();
-    }, [selectedCurrency]);
 
     return (
         <ChakraProvider theme={theme}>
@@ -277,7 +257,7 @@ const Home = () => {
                                                                         <Td>
                                                                             <Menu>
                                                                                 <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                                                                                    {walletBalances} {selectedCurrency} {selectedCurrency === 'MAYA' && <Text fontSize={"12px"}> (~{mayaUSD.toFixed(3)}) USD</Text>}
+                                                                                    {walletBalances} {selectedCurrency} {selectedCurrency === 'MAYA' && <Text fontSize={"12px"}> (~{mayaBalanceUSD.toFixed(3)}) USD</Text>}
                                                                                     {selectedCurrency === 'CACAO' && <Text fontSize={"12px"}> (~{cacaoUSD.toFixed(3)}) USD</Text>}
                                                                                 </MenuButton>
                                                                                 <MenuList>

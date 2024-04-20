@@ -22,7 +22,6 @@ export interface HeaderProps {
 
 const Header = ({ connectWallet, disconnectWallet, isConnected }: HeaderProps) => {
     const cacaoPrice = useCacaoPrice(); // Use the hook to get the current CACAO price
-    console.log("cacaoPrice: ", cacaoPrice)
     return (
         <Flex justifyContent="space-between" alignItems="center" p={2} bg="#131c3d" color="white" border={"1px solid teal"} borderRadius={"10px"}>
             <Box>
