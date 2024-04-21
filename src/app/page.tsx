@@ -139,14 +139,12 @@ const Home = () => {
         try {
             console.log("keepkeyInstance: ", keepkeyInstance);
             if (keepkeyInstance && keepkeyInstance['MAYA']) {
-                console.log("keepkeyInstance['MAYA']: ", keepkeyInstance['MAYA']);
-                const walletMethods = keepkeyInstance['MAYA'].walletMethods;
                 const wallet = keepkeyInstance['MAYA'].wallet;
+                console.log("wallet: ", wallet);
+                console.log("wallet: ", keepkeyInstance['MAYA'].walletMethods);
                 const currency = selectedCurrency === 'CACAO' ? 'CACAO' : 'MAYA';
                 const balanceIndex = currency === 'CACAO' ? 0 : 1;
                 setWalletAddress(wallet.address);
-                console.log("walletMethods: ", walletMethods);
-                console.log("walletMethods: ", walletMethods.balance);
 
                 if (!wallet.balance || wallet.balance.length <= balanceIndex || !wallet.balance[balanceIndex]) {
                     console.error(`Missing or invalid balance data for ${currency}. Logging 0 as the balance.`);
