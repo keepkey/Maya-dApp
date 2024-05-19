@@ -3,10 +3,10 @@ import { useContext } from 'react';
 import { AssetValue } from '@coinmasters/core';
 
 export function useHandleDeposit(keepkeyInstance: any) {
-    const handleDeposit = async (asset: string, amount: number, destination: string, memo: string) => {
-        console.log("handleTransfer: ", asset, amount, destination);
+    const handleDeposit = async (asset: string, amount: number, memo: string) => {
+        console.log("useHandleDeposit: ", asset, amount);
         console.log("keepkeyInstance: ", keepkeyInstance);
-        console.log("asset: ", asset, "amount: ", amount, "destination: ", destination);
+        console.log("asset: ", asset, "amount: ", amount)
         if (!asset || !amount) return;
         console.log(keepkeyInstance)
         console.log("Available keys in keepKey:", Object.keys(keepkeyInstance));
@@ -28,7 +28,7 @@ export function useHandleDeposit(keepkeyInstance: any) {
                 let sendPayload = {
                     assetValue,
                     memo,
-                    recipient: destination,
+                    // recipient: destination,
                 };
                 const txHash = await keepkeyInstance.MAYA.walletMethods.deposit(sendPayload);
                 console.log("txHash: ", 'https://www.mayascan.org/tx/' + String(txHash.txid));

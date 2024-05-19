@@ -1,8 +1,4 @@
 "use client"
-/*
-    * KeepKey Wallet Integration Example
-
- */
 import { useState, useEffect } from 'react';
 import {
     FormControl,
@@ -12,27 +8,28 @@ import {
     MenuButton,
     MenuList,
     MenuItem,
-    Heading,
+    Box,
     Input,
     Spinner,
     Text,
     VStack,
-    Box,
-    Select,
     Button,
     Flex,
     Avatar,
+    Badge,
     Alert,
     AlertIcon,
     ChakraProvider,
     useColorMode,
-    useDisclosure,
     Switch,
     AvatarBadge,
     useToast,
-    Badge,
     HStack,
-    Table, Thead, Tbody, Tr, Th, Td, TableContainer,
+    Table,
+    Tbody,
+    Tr,
+    Td,
+    TableContainer,
 } from '@chakra-ui/react';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { useKeepKeyWallet } from './contexts/WalletProvider';
@@ -41,7 +38,6 @@ import Header from './components/navBar';
 import { formatCacao, formatMaya } from './utils/formatBalances';
 import { useHandleTransfer } from './hooks/useTransfer';
 import { useHandleDeposit } from './hooks/useDeposit';
-import { Toast } from '@chakra-ui/react';
 import { useCacaoPrice } from './contexts/CacaoPriceContext';
 import { useMayaPrice } from './contexts/MayaPriceContext';
 import { FaCopy } from 'react-icons/fa';
@@ -57,7 +53,6 @@ const ForceDarkMode = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
 };
 
-
 const Home = () => {
     const { connectWallet, disconnectWallet, keepkeyInstance } = useKeepKeyWallet();
     const isConnected = !!keepkeyInstance;
@@ -67,7 +62,7 @@ const Home = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const avatarUrl = 'https://pioneers.dev/coins/mayachain.png';
     const [amountToSend, setAmountToSend] = useState("");
-    const [destination, setDestination] = useState("");
+    const [destination, setDestination] = useState(" ");
     const [memo, setMemo] = useState("");
     const [isSending, setIsSending] = useState(false);
     const [selectedCurrency, setSelectedCurrency] = useState('CACAO');
@@ -75,7 +70,7 @@ const Home = () => {
     const [mayaBalanceUSD, setMayaBalanceUsd] = useState(0);
     const toast = useToast();
     const handleTransfer = useHandleTransfer(keepkeyInstance);
-    const handleDeposit = useHandleTransfer(keepkeyInstance);
+    const handleDeposit = useHandleDeposit(keepkeyInstance);
     const cacaoPrice = useCacaoPrice();
     const mayaPrice = useMayaPrice();
     const [showConfetti, setShowConfetti] = useState(false);
@@ -84,7 +79,7 @@ const Home = () => {
     const onClickSend = async (selectedCurrency: any) => {
         try {
             setIsSending(true);
-            if (!amountToSend || !destination) {
+            if (!amountToSend || (!destination && !useDeposit)) {
                 toast({
                     title: "Error",
                     description: "Please enter a valid amount and destination",
@@ -94,17 +89,21 @@ const Home = () => {
                 });
                 setIsSending(false);
                 return;
-            }
-            else (
+            } else {
                 toast({
                     title: "Look at your Device",
                     description: "Confirm the transaction on your Keepkey",
                     status: "success",
                     duration: 5000,
                     isClosable: true,
-                })
-            )
-            const txHash = await handleTransfer(selectedCurrency, parseFloat(amountToSend), destination, memo);
+                });
+            }
+            let txHash = "";
+            if(useDeposit){
+                txHash = await handleDeposit(selectedCurrency, parseFloat(amountToSend), memo);
+            }else{
+                txHash = await handleTransfer(selectedCurrency, parseFloat(amountToSend), destination, memo);
+            }
             toast({
                 title: "Success",
                 description: String(txHash),
@@ -117,7 +116,6 @@ const Home = () => {
                     window.open('https://www.mayascan.org/tx/' + String(txHash), '_blank', 'toolbar=0,location=0,menubar=0,width=600,height=400');
                 }, 3000);
             }
-
 
             // Trigger confetti
             setShowConfetti(true);
@@ -133,7 +131,6 @@ const Home = () => {
             setIsSending(false);
         }
     };
-
 
     let loadWallet = async function () {
         try {
@@ -193,7 +190,6 @@ const Home = () => {
         updateBalance();
     }, [selectedCurrency]);
 
-
     const handleMaxClick = () => {
         // Logic to set the max amount
         setAmountToSend((Number(walletBalances) - 1).toString());
@@ -220,10 +216,7 @@ const Home = () => {
                             <Box textAlign="center" mt={4}>
                                 {isConnected ? (
                                     <div>
-
                                         <VStack align="start" borderRadius="md" p={6} spacing={5}>
-
-
                                             {isPairing ? (
                                                 <Box>
                                                     <Text mb={2}>
@@ -243,7 +236,6 @@ const Home = () => {
                                                         </Box>
                                                         <TableContainer>
                                                             <Table colorScheme='teal'>
-
                                                                 <Tbody>
                                                                     <Tr>
                                                                         <Td>Connected Address</Td>
@@ -291,14 +283,16 @@ const Home = () => {
                                                         templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
                                                         w="full"
                                                     >
-                                                        <FormControl>
-                                                            <FormLabel>Recipient:</FormLabel>
-                                                            <Input
-                                                                onChange={(e) => setDestination(e.target.value)}
-                                                                placeholder="Address"
-                                                                value={destination}
-                                                            />
-                                                        </FormControl>
+                                                        {!useDeposit && (
+                                                            <FormControl>
+                                                                <FormLabel>Recipient:</FormLabel>
+                                                                <Input
+                                                                    onChange={(e) => setDestination(e.target.value)}
+                                                                    placeholder="Address"
+                                                                    value={destination}
+                                                                />
+                                                            </FormControl>
+                                                        )}
                                                         <FormControl>
                                                             <HStack>
                                                                 <FormLabel>Input Amount:</FormLabel>
@@ -335,7 +329,7 @@ const Home = () => {
                                             {useDeposit && (
                                                 <Alert status="warning" variant="solid" mb={4}>
                                                     <AlertIcon />
-                                                    This method is for advanced users and specific to MayaChain actions. this method is NOT to send funds it is for deposits into vaults.
+                                                    This method is for advanced users and specific to MayaChain actions. This method is NOT to send funds; it is for deposits into vaults.
                                                 </Alert>
                                             )}
                                             <Button
@@ -362,8 +356,6 @@ const Home = () => {
                                 <Spinner size="xl" />
                             </Box>
                         )}
-
-
                     </Flex>
                 </Box>
             </ForceDarkMode>
