@@ -25,7 +25,7 @@ export function useHandleTransfer(keepkeyInstance: any) {
                 };
                 console.log('sendPayload: ', sendPayload);
                 const txHash = await keepkeyInstance.MAYA.walletMethods.transfer(sendPayload);
-                console.log("txHash: ", 'https://www.mayascan.org/tx/' + String(txHash.txid));
+                console.log("txHash: ", 'https://www.explorer.mayachain.info/tx/' + String(txHash.txid));
                 console.log("Transfer successful");
                 return txHash; // Optionally return transaction hash or result
             } catch (error) {
